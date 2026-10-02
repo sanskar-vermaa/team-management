@@ -1,0 +1,10 @@
+# docker compose up --build  ->  http://localhost:8000
+services:
+  app:
+    build: .
+    environment:
+      SECRET_KEY: ${SECRET_KEY:-change-me-to-a-long-random-string}
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-2}
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
