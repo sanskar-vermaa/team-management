@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block page_class %}narrow{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Build teams from a roster</h1>
+  <p class="sub">Upload a spreadsheet with one column per role. You choose how many of each role go into a team.</p>
+
+  <form action="{{ url_for('web.upload') }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="field">
+      <label for="file">Roster file</label>
+      <input id="file" type="file" name="file" accept="{{ extensions }}" required>
+      <div class="hint">{{ extensions }} · first row holds role names (e.g. Dev, BA, DA) · max {{ config.MAX_CONTENT_LENGTH // 1048576 }} MB</div>
+    </div>
+    <button class="full" type="submit">Continue</button>
+  </form>
+</section>
+
+<section class="card">
+  <h2>How it works</h2>
+  <ol class="steps">
+    <li>Upload a roster, or start from the <a href="{{ url_for('web.sample_roster') }}">sample file</a>.</li>
+    <li>Pick how many people of each role make up one team.</li>
+    <li>Optionally shuffle, and spread leftover people across teams.</li>
+    <li>Download the teams as PDF, Excel or CSV.</li>
+  </ol>
+</section>
+{% endblock %}
