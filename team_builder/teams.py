@@ -66,7 +66,7 @@ def build_teams(
     composition = validate_composition(roles, composition)
     pools = {role: list(names) for role, names in roles.items()}
     if shuffle:
-        rng = random.Random(seed)
+        rng = random.Random(seed)  # noqa: S311 - reproducible shuffles, not security
         for names in pools.values():
             rng.shuffle(names)
 

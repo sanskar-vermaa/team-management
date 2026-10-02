@@ -21,7 +21,7 @@ def test_reads_xlsx_columns_as_roles_in_order():
 
 
 def test_reads_csv():
-    data = io.BytesIO("Dev,BA\nAsha,Ravi\nBen,\n".encode())
+    data = io.BytesIO(b"Dev,BA\nAsha,Ravi\nBen,\n")
     assert read_roster(data, "roster.CSV").roles == {"Dev": ["Asha", "Ben"], "BA": ["Ravi"]}
 
 
