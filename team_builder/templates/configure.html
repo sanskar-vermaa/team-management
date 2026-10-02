@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Choose team composition · Team Builder{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>Choose the team composition</h1>
+  <p class="sub">
+    {% if filename %}{{ filename }} · {% endif %}{{ roster|length }} role{{ 's' if roster|length != 1 }},
+    {{ roster.values()|map('length')|sum }} people
+  </p>
+
+  <form action="{{ url_for('web.teams') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="roster_json" value="{{ roster_json }}">
+
+    <div class="field">
+      <label>People per team</label>
+      <div class="roles">
+        {% for role, names in roster.items() %}
+          <div class="role-input">
+            <label for="count_{{ loop.index0 }}">{{ role }}</label>
+            <input id="count_{{ loop.index0 }}" type="number" name="count_{{ loop.index0 }}"
+                   value="{{ counts.get(role, 1) }}" min="0" max="{{ max_per_role }}" required>
+            <div class="count">{{ names|length }} available</div>
+          </div>
+        {% endfor %}
+      </div>
+      <div class="hint">Set a role to 0 to leave it out of the core team.</div>
+    </div>
+
+    <div class="field">
+      <label class="check"><input type="checkbox" name="shuffle" {% if shuffle %}checked{% endif %}>
+        <span>Shuffle people randomly<br><span class="hint">Otherwise teams follow the order in your file.</span></span></label>
+    </div>
+    <div class="field">
+      <label class="check"><input type="checkbox" name="distribute" {% if distribute %}checked{% endif %}>
+        <span>Spread leftover people across teams<br><span class="hint">Otherwise they are listed as unassigned.</span></span></label>
+    </div>
+
+    <button class="full" type="submit">Generate teams</button>
+  </form>
+</section>
+{% endblock %}
