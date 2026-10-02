@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ plan.teams|length }} teams · Team Builder{% endblock %}
+{% block content %}
+<h1>{{ plan.teams|length }} team{{ 's' if plan.teams|length != 1 }} generated</h1>
+<ul class="summary">
+  {% for role, count in composition.items() if count %}
+    <li>{{ count }} {{ role }} per team</li>
+  {% endfor %}
+  {% if seed %}<li>Shuffled · seed {{ seed }}</li>{% endif %}
+  {% if distribute %}<li>Leftovers spread</li>{% endif %}
+</ul>
+
+<div class="teams">
+  {% for team in plan.teams %}
+    <article class="team">
+      <h3>Team {{ loop.index }} <span>{{ team.values()|map('length')|sum }} people</span></h3>
+      {% for role, members in team.items() %}
+        {% for member in members %}
+          <div class="member"><span>{{ member }}</span><span class="role">{{ role }}</span></div>
+        {% endfor %}
+      {% endfor %}
+    </article>
+  {% endfor %}
+</div>
+
+{% if plan.leftovers %}
+  <div class="leftovers" role="note">
+    <strong>{{ plan.leftover_count }} unassigned</strong> — not enough people to form another team:
+    <ul>
+      {% for role, members in plan.leftovers.items() %}
+        <li>{{ role }}: {{ members|join(', ') }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<div class="actions">
+  {% for fmt, label in [('pdf', 'Download PDF'), ('xlsx', 'Download Excel'), ('csv', 'Download CSV')] %}
+    <form action="{{ url_for('web.export', fmt=fmt) }}" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="plan_json" value="{{ plan_json }}">
+      <button type="submit" {% if not loop.first %}class="secondary"{% endif %}>{{ label }}</button>
+    </form>
+  {% endfor %}
+
+  <form action="{{ url_for('web.teams') }}" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="roster_json" value="{{ roster_json }}">
+    {% for role, count in composition.items() %}
+      <input type="hidden" name="count_{{ loop.index0 }}" value="{{ count }}">
+    {% endfor %}
+    <input type="hidden" name="shuffle" value="on">
+    {% if distribute %}<input type="hidden" name="distribute" value="on">{% endif %}
+    <button type="submit" class="secondary">Shuffle again</button>
+  </form>
+
+  <a href="{{ url_for('web.index') }}">Upload another roster</a>
+</div>
+{% endblock %}
